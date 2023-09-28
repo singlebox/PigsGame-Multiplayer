@@ -6,8 +6,12 @@ using System;
 using TMPro;
 using UnityEngine.UI;
 
+/// <summary>
+/// 角色控制类，具有8个状态，通过检测按键输入等进行状态判断    
+/// </summary>
 public class PlayerController :FSM
 {
+    
     public enum FSMState            //角色的八个状态
     {
         None,Idle,Moving,Jump,Fall,Attack,Hit,Dead
@@ -58,7 +62,7 @@ public class PlayerController :FSM
         displayNameTMP.text = newNickName;
     }
 
-    [Command]
+    [Command]       //测试时使用对自己造成伤害
     private void CmdTakeDamage(int damage)
     {
         health -= damage;
@@ -71,7 +75,7 @@ public class PlayerController :FSM
         target.GetComponent<PlayerController>().health -=damage;
     }
 
-    [Command]
+    [Command]       //角色生命值为0时死亡
     private void CmdDeadPlayer()            
     {
         GameManager.GetInstance().RemovePlayerName(this.nickName);
@@ -91,17 +95,17 @@ public class PlayerController :FSM
 
     //重构函数
     protected override void Initialize()
-    {
-        Invoke("SetDefaultState", 3f);
+    {       //进入游戏时进入倒计时并让玩家等待4s，
+        Invoke("SetDefaultState", 4f);
     }
 
     protected override void FSMUpdate()
     {
-        if (!isLocalPlayer) return;
-        horizontalAxis = Input.GetAxisRaw("Horizontal");
+        if (!isLocalPlayer) return;         //只能控制本地角色  
+        horizontalAxis = Input.GetAxisRaw("Horizontal");        //检测按键输入
         if(Input.GetButtonDown("Jump"))
         {
-            jump = true;
+            jump = true;                        //防止因为Update与FixedUpdate执行次序不同导致在FixedUpdate中无法检测到按键输入
             Debug.Log("Jump");
             Debug.Log("-----");
         }
@@ -109,10 +113,10 @@ public class PlayerController :FSM
         {
             attack = true;
         }
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            CmdTakeDamage(10);
-        }
+        //if (Input.GetKeyDown(KeyCode.M))          //测试时使用
+        //{
+        //    CmdTakeDamage(10);
+        //}
         //角色朝向  角色本来朝向左边，输入为右时反转，为左时不变，为0时维持当前
         int lookAt = horizontalAxis > 0 ? -1 : horizontalAxis < 0 ? 1 : (int)pigT.localScale.x;
         pigT.localScale = new Vector2(lookAt, 1);
@@ -122,7 +126,7 @@ public class PlayerController :FSM
     {
         if (!isLocalPlayer) return;
         if (GameManager.GetInstance().gameState != GameManager.GameState.GameStart) return;
-        switch (curState)
+        switch (curState)               //进行状态转换
         {
             case FSMState.Idle:
                 UpdateIdleState();
@@ -156,7 +160,7 @@ public class PlayerController :FSM
 
     private void UpdateIdleState()
     {
-        transform.GetComponent<CircleCollider2D>().sharedMaterial  = haveFriction;
+        transform.GetComponent<CircleCollider2D>().sharedMaterial  = haveFriction;      //切换回默认有摩擦力的物理材质
         animator.Play("Pig_Idle");      //播放动画
         //状态转换
         if(jump)
@@ -211,7 +215,7 @@ public class PlayerController :FSM
     private void UpdateJumpState()
     {
         jump = false;
-        transform.GetComponent<CircleCollider2D>().sharedMaterial = noFriction;
+        transform.GetComponent<CircleCollider2D>().sharedMaterial = noFriction;         //跳跃时更换没有摩擦力的材质，防止卡墙
         animator.Play("Pig_Jump");
         rb2d.velocity = new Vector2(horizontalAxis * speed * Time.fixedDeltaTime, rb2d.velocity.y);
 
@@ -236,7 +240,7 @@ public class PlayerController :FSM
     private void UpdateFallState()
     {
         jump = false;
-        transform.GetComponent<CircleCollider2D>().sharedMaterial = noFriction;
+        transform.GetComponent<CircleCollider2D>().sharedMaterial = noFriction;             //更换材质，防止卡墙
         animator.Play("Pig_Fall");
 
         rb2d.velocity = new Vector2(horizontalAxis * speed * Time.fixedDeltaTime, rb2d.velocity.y);

@@ -10,12 +10,12 @@ public class GameUi : MonoBehaviour             //对UI进行管理
 
     IEnumerator Start()
     {
-        while (GameManager.GetInstance() == null || GameManager.GetInstance().localPlayer == null)
-            yield return null;
+        while (GameManager.GetInstance() == null || GameManager.GetInstance().localPlayer == null)      //检测是否有GameManager单例对象以及GameManager对象是否有PlayerController对象
+            yield return null;      //暂停一帧
     }
 
     /// <summary>
-    /// 开始游戏时执行
+    /// 开始游戏时执行 进行倒计时
     /// </summary>
     public void OnStartGame()
     {

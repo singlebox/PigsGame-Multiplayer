@@ -5,7 +5,7 @@ using Mirror;
 
 public class GameManager : NetworkBehaviour         //对游戏总体进行管理
 {
-    public static GameManager instance;
+    public static GameManager instance;     //创建单例对象
 
     public enum GameState
     {
@@ -17,7 +17,7 @@ public class GameManager : NetworkBehaviour         //对游戏总体进行管理
 
     public GameUi gameUI;
 
-    public readonly SyncList<string> playerNames = new SyncList<string>();
+    public readonly SyncList<string> playerNames = new SyncList<string>();          //存储玩家名称
 
     public GameState gameState = GameState.None;
 
